@@ -1,0 +1,12 @@
+HOW TO READ:
+
+VERSION
+- Changes listed
+
+{ UPDATE NAME (only 0.1.7.0 and up), BELOW THE UPDATES FOR THAT VERSION }
+[edited text or clarifications]
+
+CHANGELOG:
+
+Snapshot 24w12a for 1.0.0.0
+- Initial Commit

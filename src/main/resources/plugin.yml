@@ -1,0 +1,9 @@
+name: RDSCommons
+version: '${project.version}'
+main: net.realdarkstudios.commons.RDSCommons
+api-version: '1.19'
+prefix: Commons
+load: STARTUP
+authors: [RealDarkStudios / RDS]
+description: A collection of common utils for RDS plugins
+loadbefore: [Minecaching]
