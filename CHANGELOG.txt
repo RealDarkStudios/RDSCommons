@@ -19,6 +19,12 @@ Changes:
 
 CHANGELOG:
 
+Snapshot 24w13h for 1.0.0.0
+Removed:
+- IYamlStorage
+- IYamlStorageWithID
+- IYamlStorageWithIDAndObject
+
 Snapshot 24w13g for 1.0.0.0
 Added:
 - IYamlStorageWithIDAndObject
