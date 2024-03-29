@@ -1,12 +1,51 @@
 HOW TO READ:
 
-VERSION
-- Changes listed
+{ UPDATE NAME BELOW THE UPDATES FOR THAT VERSION }
+[edited text or clarifications from the commit notes]
 
-{ UPDATE NAME (only 0.1.7.0 and up), BELOW THE UPDATES FOR THAT VERSION }
-[edited text or clarifications]
+VERSION
+Added:
+- Things that were added, such as classes or methods
+
+Removed:
+- Things removed, such as classes or methods
+
+Refactors:
+- Changes in names or parameters for methods
+
+Changes:
+- Other changes
+
 
 CHANGELOG:
+
+Snapshot(s) 24w12b to 24w13e for 1.0.0.0
+Added:
+- CommonsAPI
+- AutoUpdater#getReplacements
+- AutoUpdater#setReplacements
+- RDSLogHelper
+- Localization#getLogHelper
+- MessageKeys.Api
+
+Removed:
+- IYamlSerializable#fromYaml
+- IYamlSerializableEnum#get
+- IYamlStorage#getInstance
+
+Refactors:
+- RDSCommons#info -> CommonsAPI#info
+- RDSCommons#tInfo -> CommonsAPI#tInfo
+- RDSCommons#warning -> CommonsAPI#warning
+- RDSCommons#tWarning -> CommonsAPI#tWarning
+- AutoUpdater constructor now takes in (Plugin plugin, String dataURL, String versionURL, Parser parser)
+
+Changes:
+- Moved most API related classes to CommonsAPI
+- Updated RDSCommonsUpdater
+- Added @NotNull to IRDSPlugin getVersion() and getVersionString(), and to IYamlSerializableEnum getId();
+- General LocalizationProvider upgrades (mainly error reporting)
+- I must have been really tired when I wrote the return statement for Version#compareSnapshotNumberPart
 
 Snapshot 24w12a for 1.0.0.0
 - Initial Commit
