@@ -2,11 +2,13 @@ package net.realdarkstudios.commons.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import net.realdarkstudios.commons.CommonsAPI;
 import net.realdarkstudios.commons.RDSCommons;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Locale;
@@ -24,7 +26,7 @@ public class LocalizationProvider {
      * @param plugin The plugin to generate the Localization for
      * @param locale The Locale to use
      * @return A Localization which can be used for translation
-     * @since 0.3.1.0-24w11a
+     * @since 1.0.0.0
      */
     public Localization load(Plugin plugin, Locale locale) {
         return pluginMap.containsKey(plugin) ? get(plugin) : loadPlugin(plugin, locale);
@@ -36,7 +38,7 @@ public class LocalizationProvider {
      * @param locale The Locale to use
      * @return A Localization which can be used for translation
      * @throws RuntimeException If a language can't be loaded for the given Plugin
-     * @since 0.2.2.0
+     * @since 1.0.0.0
      */
     private Localization loadPlugin(Plugin plugin, Locale locale) {
         JsonObject json;
@@ -47,13 +49,13 @@ public class LocalizationProvider {
             if (json.isJsonNull()) throw new Exception("JSON is null!");
             loadPluginMessage(plugin, locale, json);
         } catch (Exception e) {
-            RDSCommons.warning("The Server Locale defined in config.yml is invalid or not supported! \nlang/" + locale.toLanguageTag() + ".json does not exist inside " + plugin.getName() + "'s resource folder! \nDefaulting to en-US.json!");
             e.printStackTrace();
+            CommonsAPI.warning("Defaulting to 'en-US'!");
 
             if (locale.equals(Locale.US)) {
-                RDSCommons.warning(String.format("Unable to set a language for plugin: %s!", plugin.getName()));
+                CommonsAPI.warning(String.format("Unable to create localization '%s' for plugin: '%s'!", locale.toLanguageTag(), plugin.getName()));
                 if (plugin.equals(RDSCommons.getInstance())) RDSCommons.getInstance().onDisable();
-                else throw new RuntimeException("Could not load en-US.json for plugin " + plugin.getName());
+                else throw new RuntimeException("Could not load localization 'en-US' for plugin '" + plugin.getName() + "'");
                 return null;
             }
 
@@ -61,24 +63,32 @@ public class LocalizationProvider {
                 json = loadJson(plugin, Locale.US);
                 loadPluginMessage(plugin, locale, json);
             } catch (Exception e1) {
-                RDSCommons.warning(String.format("Unable to set a language for plugin: %s!", plugin.getName()));
+                CommonsAPI.warning(String.format("Unable to create localization '%s' for plugin: '%s'!", locale.toLanguageTag(), plugin.getName()));
                 if (plugin.equals(RDSCommons.getInstance())) RDSCommons.getInstance().onDisable();
-                else throw new RuntimeException("Could not load either " + locale.toLanguageTag() + ".json or en-US.json for plugin " + plugin.getName());
+                else throw new RuntimeException("Could not load either localization ('" + locale.toLanguageTag() + "' and 'en-US' for plugin '" + plugin.getName() + "'");
                 return null;
             }
         }
 
-        Localization localization = new Localization(json);
+        Localization localization = new Localization(json, new RDSLogHelper(plugin.getLogger()));
         pluginMap.put(plugin, localization);
         return localization;
     }
 
+    /**
+     * Helper function to print the loaded localization for plugin message
+     * @param plugin The {@link Plugin}
+     * @param locale The {@link Locale}
+     * @param json The {@link JsonObject}
+     * @since 1.0.0.0
+     */
     private void loadPluginMessage(Plugin plugin, Locale locale, JsonObject json) {
-        RDSCommons.info(String.format(plugin.equals(RDSCommons.getInstance()) ?
-                        formatStr(json.get("plugin.localization.loaded").toString()) :
-                        MessageKeys.LOCALIZATION_LOADED.getRawMessage(),
-                json.has("locale.name") ? json.get("locale.name").toString() : localeNames.get(locale),
-                json.has("plugin.name") ? json.get("plugin.name") + " (" + plugin.getName() + ")" : plugin.getName()));
+        CommonsAPI.info(String.format(plugin.equals(RDSCommons.getInstance()) ?
+                        formatStr(json.get("api.loaded_localization").toString()) :
+                        MessageKeys.Api.LOADED_LOCALIZATION.getRawMessage(),
+                json.has("locale.name") ? json.get("locale.name").toString().replace("\"", "") : localeNames.get(locale),
+                json.has("plugin.name") ? json.get("plugin.name").toString().replace("\"", "") : plugin.getName(),
+                plugin.getName()));
     }
 
     /**
@@ -87,15 +97,27 @@ public class LocalizationProvider {
      * @param locale The locale to load the JSON from
      * @return A JsonObject which can be used by the {@link Localization}
      * @throws IOException If no JSON could be read or if the file does not exist
+     * @since 1.0.0.0
      */
     private JsonObject loadJson(@NotNull Plugin plugin, @NotNull Locale locale) throws IOException {
-        InputStreamReader reader = new InputStreamReader(plugin.getResource("lang/" + locale.toLanguageTag() + ".json"));
+        InputStream stream;
+
+        try {
+            stream = plugin.getClass().getClassLoader().getResourceAsStream("lang/" + locale.toLanguageTag() + ".json");
+            if (stream == null) throw new Exception();
+        } catch (Exception e) {
+            throw new IOException("Could not get resource " + plugin.getName() + "/resources/lang/" + locale.toLanguageTag() + ".json!");
+        }
+
+        InputStreamReader reader = new InputStreamReader(stream);
         if (!reader.ready()) {
             reader.close();
             throw new IOException("Reader not ready or JSON invalid for plugin " + plugin.getName());
         }
 
         JsonObject ret = gson.fromJson(reader, JsonObject.class);
+        reader.close();
+
         if (ret == null) throw new IOException("JSON could not be read from file " + plugin.getName() + "/resources/lang/" + locale.toLanguageTag() + ".json");
         else return ret;
     }
@@ -104,6 +126,7 @@ public class LocalizationProvider {
      * Gets the {@link Localization} for the given {@link Plugin}
      * @param plugin The plugin to get the Localization for
      * @return The requested Localization
+     * @since 1.0.0.0
      */
     public Localization get(Plugin plugin) {
         return pluginMap.get(plugin);
@@ -111,6 +134,7 @@ public class LocalizationProvider {
 
     /**
      * Clears the LocalizationProvider's internal plugin map
+     * @since 1.0.0.0
      */
     public void clear() {
         this.pluginMap.clear();
@@ -119,10 +143,11 @@ public class LocalizationProvider {
     /**
      * Gets the {@link LocalizationProvider} instance
      * @return The LocalizationProvider instance
+     * @since 1.0.0.0
      */
     public static LocalizationProvider getInstance() {
-        if (RDSCommons.getAPILocalizationProvider() == null) return new LocalizationProvider();
-        return RDSCommons.getAPILocalizationProvider();
+        if (RDSCommons.getAPI().getLocalizationProvider() == null) return new LocalizationProvider();
+        return RDSCommons.getAPI().getLocalizationProvider();
     }
 
     private String formatStr(String str) {

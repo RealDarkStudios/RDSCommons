@@ -4,7 +4,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.realdarkstudios.commons.RDSCommons;
+import net.realdarkstudios.commons.CommonsAPI;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ public class LocalizedMessages {
     }
 
     public static void sendComponents(CommandSender sender, TextComponent... textComponents) {
-        if (!(sender instanceof Player plr)) RDSCommons.info("Can't send component to non-player!");
+        if (!(sender instanceof Player plr)) CommonsAPI.info("Can't send component to non-player!");
         else plr.spigot().sendMessage(textComponents);
     }
 
@@ -64,6 +64,30 @@ public class LocalizedMessages {
      * @since 0.3.1.0
      */
     public record Key(Localization localization, String path, StyleOptions styleOptions) {
+        /**
+         * Returns the localization that this key will use
+         * @return The {@link Localization} of this key
+         */
+        public Localization getLocalization() {
+            return localization;
+        }
+
+        /**
+         * Returns the path inside the localization this key uses
+         * @return The path of this key
+         */
+        public String getPath() {
+            return path;
+        }
+
+        /**
+         * Returns this key's style options
+         * @return The {@link StyleOptions} of this key
+         */
+        public StyleOptions getStyleOptions() {
+            return styleOptions;
+        }
+
         /**
          * Gets the raw message (no formatting)
          * @return The raw message

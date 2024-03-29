@@ -1,23 +1,30 @@
 package net.realdarkstudios.commons.util;
 
+import net.realdarkstudios.commons.CommonsAPI;
 import net.realdarkstudios.commons.RDSCommons;
 import net.realdarkstudios.commons.misc.IRDSPlugin;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public abstract class AutoUpdater {
     private final Plugin plugin;
-    private final String url;
+    private final String dataURL, versionURL;
     private Parser parser;
+    private Map<String, String> replacements = new HashMap<>();
     private static String newVer = "", branch = "";
     private static boolean doUpdate = false;
     private static int lastUpdateCheck = 10000;
@@ -26,12 +33,14 @@ public abstract class AutoUpdater {
      * Creates an auto-updater for a given Plugin.
      * There is no need to create more than one auto updater, as this may have bad consequences.
      * @param plugin The {@link Plugin} that owns this auto updater.
-     * @param url The URL to check for updates from. To use branch functionality, add '%s' wherever the branch would go in the URL.
+     * @param dataURL The URL to check for updates from. Put '%b%' wherever the branch would go in the URL.
+     * @param versionURL The URL to grab a version file from. Put '%b%' where the branch would go, and '%v%' where the version would go.
      * @param parser The {@link Parser} to use, which determines how to parse the URL data. For a CUSTOM parser type, use Parser.CUSTOM.setParser() to set your custom parsing method
      */
-    public AutoUpdater(Plugin plugin, String url, Parser parser) {
+    public AutoUpdater(Plugin plugin, String dataURL, String versionURL, Parser parser) {
         this.plugin = plugin;
-        this.url = url;
+        this.dataURL = dataURL;
+        this.versionURL = versionURL;
         this.parser = parser;
     }
 
@@ -49,6 +58,28 @@ public abstract class AutoUpdater {
      */
     public void setParser(Parser parser) {
         this.parser = parser;
+    }
+
+    /**
+     * Gets the map of replacements
+     * @return The {@link Map} with all replacements
+     */
+    public Map<String, String> getReplacements() {
+        return replacements;
+    }
+
+    /**
+     * Sets the map of replacements.
+     * For example, if you have a version that will not be correctly parsed, you can set a replacement for it.
+     * <br>
+     * <br>
+     * (snapshot-24w13a in this case is something that will not get parsed)
+     * <br>
+     * Ex. Putting in {@code ("snapshot-24w13a", "1.0.0.0-snapshot-24w13a")} will plug in {@code "1.0.0.0-snapshot-24w13a"} into the {@code Version#fromString} call, which will be parsed.
+     * @param replacements The map of replacements
+     */
+    public void setReplacements(Map<String, String> replacements) {
+        this.replacements = replacements;
     }
 
     /**
@@ -87,7 +118,7 @@ public abstract class AutoUpdater {
     }
 
     public void checkForUpdate() {
-        RDSCommons.tInfo(MessageKeys.Update.CHECKING, plugin.getName(), parser.getName());
+        CommonsAPI.tInfo(MessageKeys.Update.CHECKING, plugin.getName(), parser.getName());
 
         final int[] result = new int[1];
         new BukkitRunnable() {
@@ -97,15 +128,15 @@ public abstract class AutoUpdater {
 
                 try {
                     // Grab the info from maven-metadata.xml on the maven
-                    URL readURL = new URL(String.format(url, branch));
+                    URL readURL = new URL(dataURL.replace("%b%", branch));
 
-                    versionMap = parser.getParser().apply(readURL);
+                    versionMap = parser.getParser().apply(readURL, replacements);
 
                     // Put all versions into an array
                     List<Version> versions = new ArrayList<>(versionMap.keySet());
 
                     if (versions.isEmpty()) {
-                        RDSCommons.tInfo(MessageKeys.Update.NO_VERSIONS_AVAILABLE);
+                        CommonsAPI.tInfo(MessageKeys.Update.NO_VERSIONS_AVAILABLE);
                         result[0] = 10000;
                         return;
                     }
@@ -115,17 +146,17 @@ public abstract class AutoUpdater {
 
                     // Get the most recent version
                     Version laterV = versions.get(versions.size() - 1);
-                    RDSCommons.tInfo(MessageKeys.Update.LATEST, branch, plugin.getName(), versionMap.get(laterV));
+                    CommonsAPI.tInfo(MessageKeys.Update.LATEST, branch, plugin.getName(), versionMap.get(laterV));
 
                     Version pluginVersion;
 
-                    if (plugin instanceof IRDSPlugin) {
-                        pluginVersion = ((IRDSPlugin) plugin).getVersion();
+                    if (plugin instanceof IRDSPlugin p) {
+                        pluginVersion = p.getVersion();
                     } else {
                         try {
                             pluginVersion = Version.fromString(plugin.getDescription().getVersion());
                         } catch (Exception e) {
-                            RDSCommons.tWarning(MessageKeys.Update.FAIL_TO_PARSE_VERSION, plugin.getDescription().getVersion());
+                            CommonsAPI.tWarning(MessageKeys.Update.FAIL_TO_PARSE_VERSION, plugin.getDescription().getVersion());
                             result[0] = 10000;
                             errorChecking();
                             return;
@@ -136,7 +167,7 @@ public abstract class AutoUpdater {
                     switch (pluginVersion.compareTo(laterV)) {
                         case -1 -> {
                             // BEHIND
-                            RDSCommons.tInfo(MessageKeys.Update.STATUS_BEHIND, plugin.getName());
+                            CommonsAPI.tInfo(MessageKeys.Update.STATUS_BEHIND, plugin.getName());
                             doUpdate = true;
                             newVer = versionMap.get(laterV);
                             result[0] = -1;
@@ -144,13 +175,13 @@ public abstract class AutoUpdater {
                         }
                         case 0 -> {
                             // UP-TO-DATE
-                            RDSCommons.tInfo(MessageKeys.Update.STATUS_UP_TO_DATE, plugin.getName());
+                            CommonsAPI.tInfo(MessageKeys.Update.STATUS_UP_TO_DATE, plugin.getName());
                             result[0] = 0;
                             statusUpToDate();
                         }
                         case 1 -> {
                             // AHEAD
-                            RDSCommons.tInfo(MessageKeys.Update.STATUS_AHEAD, plugin.getName());
+                            CommonsAPI.tInfo(MessageKeys.Update.STATUS_AHEAD, plugin.getName());
                             result[0] = 1;
                             statusAhead();
                         }
@@ -158,7 +189,7 @@ public abstract class AutoUpdater {
 
                     return;
                 } catch (IOException e) {
-                    RDSCommons.tWarning(MessageKeys.Update.FAIL_TO_CHECK);
+                    CommonsAPI.tWarning(MessageKeys.Update.FAIL_TO_CHECK);
                     e.printStackTrace();
                 }
 
@@ -168,6 +199,29 @@ public abstract class AutoUpdater {
         }.runTaskAsynchronously(RDSCommons.getInstance());
 
         lastUpdateCheck = result[0];
+    }
+
+    public void applyUpdate() {
+        String newVersion = getNewestVersion();
+        CommonsAPI.tInfo(MessageKeys.Update.GETTING, newVersion);
+        try {
+            URL download = new URL(versionURL.replace("%b%", branch).replace("%v%", newVersion));
+            ReadableByteChannel rbc = Channels.newChannel(download.openStream());
+            File file = new File(Path.of(plugin.getDataFolder().toURI()).getParent().toString() + "/" + plugin.getName() + "-" + newVersion + ".jar");
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            fos.close();
+            CommonsAPI.tInfo(MessageKeys.Update.DOWNLOADED);
+
+            Method getFileMethod = JavaPlugin.class.getDeclaredMethod("getFile");
+            getFileMethod.setAccessible(true);
+            File curfile = (File) getFileMethod.invoke(plugin);
+            CommonsAPI.tInfo(MessageKeys.Update.APPLIED);
+            curfile.deleteOnExit();
+        } catch (Exception e) {
+            CommonsAPI.tWarning(MessageKeys.Update.FAIL);
+            e.printStackTrace();
+        }
     }
     
     protected abstract void statusBehind(Version newVer, String newVerInput);
@@ -180,10 +234,10 @@ public abstract class AutoUpdater {
     }
     
     public static Version parseVersion(String versionToParse) {
-        return Version.fromString(versionToParse.replace("<version>", "").replace("</version>", "").trim());
+        return Version.fromString(versionToParse);
     }
     
-    public static HashMap<Version, String> parseMavenMetadata(URL readURL) {
+    public static HashMap<Version, String> parseMavenMetadata(URL readURL, Map<String, String> replacements) {
         HashMap<Version, String> versionMap = new HashMap<>();
 
         try {
@@ -198,10 +252,14 @@ public abstract class AutoUpdater {
                         if (!str.contains("</versions>")) {
                             if (!str.toLowerCase().contains("snapshot") || branch.equals("snapshot")) {
                                 // Will continue to next version if one fails to parse
+                                String line = str.replace("</version>", "").replace("<version>", "").trim();
                                 try {
-                                    versionMap.put(parseVersion(str), str.replace("</version>", "").replace("<version>", "").trim());
+                                    if (replacements.containsKey(line)) {
+                                        line = replacements.get(line);
+                                    }
+                                    versionMap.put(parseVersion(line), line);
                                 } catch (IllegalArgumentException ignored) {
-                                    RDSCommons.tWarning(MessageKeys.Update.FAIL_TO_PARSE_VERSION, str);
+                                    CommonsAPI.tWarning(MessageKeys.Update.FAIL_TO_PARSE_VERSION, line);
                                 }
                             }
                         } else break;
@@ -217,7 +275,7 @@ public abstract class AutoUpdater {
         return versionMap;
     }
     
-    private static HashMap<Version, String> parseJSON(URL readURL) {
+    private static HashMap<Version, String> parseJSON(URL readURL, Map<String, String> replacements) {
         HashMap<Version, String> versionMap = new HashMap<>();
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(readURL.openStream()));
@@ -227,10 +285,12 @@ public abstract class AutoUpdater {
                 String line = str.replace("{", "").replace("}", "").replace(",", "").replace("\"", "").trim();
                 if (!line.toLowerCase().contains("snapshot") || branch.equals("snapshot")) {
                     try {
+                        if (replacements.containsKey(line)) {
+                            line = replacements.get(line);
+                        }
                         versionMap.put(parseVersion(line), line);
                     } catch (IllegalArgumentException ignored) {
-                        RDSCommons.tWarning(MessageKeys.Update.FAIL_TO_PARSE_VERSION, line);
-
+                        CommonsAPI.tWarning(MessageKeys.Update.FAIL_TO_PARSE_VERSION, line);
                     }
                 }
             }
@@ -246,12 +306,12 @@ public abstract class AutoUpdater {
     public enum Parser {
         MAVEN_METADATA("MAVEN METADATA", AutoUpdater::parseMavenMetadata),
         JSON("JSON", AutoUpdater::parseJSON),
-        CUSTOM("CUSTOM", (url) -> new HashMap<>());
+        CUSTOM("CUSTOM", (url, replacements) -> new HashMap<>());
 
         private final String name;
-        private Function<URL, HashMap<Version, String>> parser;
+        private BiFunction<URL, Map<String, String>, HashMap<Version, String>> parser;
 
-        Parser(String name, Function<URL, HashMap<Version, String>> parser) {
+        Parser(String name, BiFunction<URL, Map<String, String>, HashMap<Version, String>> parser) {
             this.name = name;
             this.parser = parser;
         }
@@ -260,11 +320,11 @@ public abstract class AutoUpdater {
             return name;
         }
 
-        public Function<URL, HashMap<Version, String>> getParser() {
+        public BiFunction<URL, Map<String, String>, HashMap<Version, String>> getParser() {
             return parser;
         }
 
-        public Parser setParser(Function<URL, HashMap<Version, String>> parser) {
+        public Parser setParser(BiFunction<URL, Map<String, String>, HashMap<Version, String>> parser) {
             this.parser = parser;
             return this;
         }

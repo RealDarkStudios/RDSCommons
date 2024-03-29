@@ -1,5 +1,6 @@
 package net.realdarkstudios.commons.menu;
 
+import net.realdarkstudios.commons.CommonsAPI;
 import net.realdarkstudios.commons.RDSCommons;
 import net.realdarkstudios.commons.event.MenuItemClickEvent;
 import net.realdarkstudios.commons.menu.item.ErrorMenuItem;
@@ -146,7 +147,7 @@ public abstract class MCMenu {
      */
     public MCMenu setItem(@IntRange(from=0, to=53) int slot, MenuItem item) {
         if (slot <= size.getSlotCount() - 1) items[slot] = item;
-        else RDSCommons.tWarning(MessageKeys.Error.MENU_ITEM_OUT_OF_BOUNDS, slot, size.getSlotCount());
+        else CommonsAPI.tWarning(MessageKeys.Error.MENU_ITEM_OUT_OF_BOUNDS, slot, size.getSlotCount());
         return this;
     }
 

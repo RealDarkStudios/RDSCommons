@@ -1,4 +1,7 @@
 {
+  "api.loaded_localization": "Loaded localization: '%s' for plugin '%s' (%s)",
+  "api.registering_localization": "Registering localization '%s' for plugin '%s'",
+
   "error": "Error!",
   "error.non_console_command": "This command must be executed by a player!",
   "error.incorrect_usage": "Incorrect Usage!",
@@ -22,14 +25,14 @@
   "update.latest": "Latest %s for %s: %s",
   "update.failcheck": "Unable to check for updates!",
   "update.fail": "Unable to complete update!",
-  "update.getting": "Getting Minecaching %s",
+  "update.getting": "Getting Minecaching v%s",
   "update.downloaded": "Downloaded update!",
   "update.applied": "Applied update!",
-  "update.ahead": "%s version AHEAD",
-  "update.behind": "%s version BEHIND",
-  "update.up_to_date": "%s version UP TO DATE",
+  "update.ahead": "%s version: AHEAD",
+  "update.behind": "%s version: BEHIND",
+  "update.up_to_date": "%s version: UP-TO-DATE",
   "update.disabled": "Auto Updates are disabled due to AUTO_UPDATE being false in config.yml",
   "update.download_disabled": "Not downloading update due to AUTO_UPDATE being false in config.yml",
   "update.none_available": "There are no available updates!",
-  "update.fail_to_parse_version": "Failed to parse version %s"
+  "update.fail_to_parse_version": "Failed to parse version '%s'"
 }

@@ -1,7 +1,6 @@
 package net.realdarkstudios.commons.util;
 
-import net.realdarkstudios.commons.RDSCommons;
-
+import net.realdarkstudios.commons.CommonsAPI;
 
 public class Version implements Comparable<Version> {
     private final int majorapi, minorapi, build, patch, prereleaseVer;
@@ -15,7 +14,7 @@ public class Version implements Comparable<Version> {
         this.patch = patch;
 
         if (snapshot && prerelease) {
-            RDSCommons.warning("Constructed version is both a snapshot and prerelease! Picking prerelease due to precedence.");
+            CommonsAPI.warning("Constructed version is both a snapshot and prerelease! Picking prerelease due to precedence.");
             snapshot = false;
         }
 
@@ -66,7 +65,7 @@ public class Version implements Comparable<Version> {
         if (prerelease) {
             return String.format("%d.%d.%d.%d-pre%d", majorapi, minorapi, build, patch, prereleaseVer);
         } else if (snapshot) {
-            return String.format("snapshot-%d.%d.%d.%d-%s", majorapi, minorapi, build, patch, snapshotVer);
+            return String.format("%d.%d.%d.%d-snapshot-%s", majorapi, minorapi, build, patch, snapshotVer);
         } else {
             return String.format("%d.%d.%d.%d", majorapi, minorapi, build, patch);
         }
@@ -77,7 +76,7 @@ public class Version implements Comparable<Version> {
             // prerelease
             int maj, min, build, patch, prn;
             // splits into X.X.X.X and X (prerelease number/prn)
-            // ex 0.3.1.0-pre1 -> 0.3.1.0 and 1
+            // ex 1.0.0.0-pre1 -> 1.0.0.0 and 1
 
             String[] parts = version.split("-pre");
             String[] release = parts[0].split("\\.");
@@ -90,7 +89,8 @@ public class Version implements Comparable<Version> {
 
             return new Version(maj, min, build, patch, false, "", true, prn);
         } else if (version.toLowerCase().contains("snapshot-")) {
-            if (version.equals("snapshot-24w11b")) return new Version(0, 3, 1, 0, true, "24w11b", false, 0);
+            // OLD CODE FROM MINECACHING
+//            if (version.equals("snapshot-24w11b")) return new Version(0, 3, 1, 0, true, "24w11b", false, 0);
 
             //snapshot
             int maj, min, build, patch;
@@ -101,10 +101,11 @@ public class Version implements Comparable<Version> {
 
             if (version.toLowerCase().startsWith("snapshot-")) {
                 // splits into ["snapshot", "X.X.X.X", "sv (snapshot version)"]
-                // ex snapshot-0.3.1.0-24w12a -> ["snapshot", "0.3.1.0", "24w12a"]
+                // ex snapshot-1.0.0.0-24w12a -> ["snapshot", "1.0.0.0", "24w12a"]
                 release = parts[1].split("\\.");
             } else {
-                // old: X.X.X.X-SNAPSHOT-X
+                // splits into ["X.X.X.X", "snapshot", "sv (snapshot version)"]
+                // ex 1.0.0.0-snapshot-24w13a -> ["1.0.0.0", "snapshot", "24w13a"]
                 release = parts[0].split("\\.");
             }
 
@@ -116,13 +117,14 @@ public class Version implements Comparable<Version> {
 
             return new Version(maj, min, build, patch, true, sv, false, 0);
         } else {
-            if (version.equals("0.3.1.0-24w10a")) return new Version(0, 3, 1, 0, true, "24w10a", false, 0);
-            if (version.equals("0.3.1.0-24w11a")) return new Version(0, 3, 1, 0, true, "24w11a", false, 0);
+            // OLD CODE FROM MINECACHING
+//            if (version.equals("1.0.0.0-24w10a")) return new Version(0, 3, 1, 0, true, "24w10a", false, 0);
+//            if (version.equals("1.0.0.0-24w11a")) return new Version(0, 3, 1, 0, true, "24w11a", false, 0);
 
             //release
             int maj, min, build, patch;
             // splits into ["X.X.X.X", "extra (extra bits, will ignore)"]
-            // ex 0.3.1.0-randomJunk -> ["0.3.1.0", "randomJunk"]
+            // ex 1.0.0.0-randomJunk -> ["1.0.0.0", "randomJunk"]
             // we only care about the first bit
 
             String[] parts = version.split("-");
@@ -192,11 +194,7 @@ public class Version implements Comparable<Version> {
             else return 1;
         }
 
-        int part = Integer.compare(partT, partO);
-
-        if (part == 1) return 1;
-        else if (part == -1) return -1;
-        else return 0;
+        return Integer.compare(partT, partO);
     }
 
     private int compareSnapshotStringPart(String partTs, String partOs) {

@@ -1,7 +1,8 @@
 package net.realdarkstudios.commons.misc;
 
-public interface IYamlSerializableEnum<T> {
-    T get();
+import org.jetbrains.annotations.NotNull;
 
+public interface IYamlSerializableEnum<T> {
+    @NotNull
     String getId();
 }

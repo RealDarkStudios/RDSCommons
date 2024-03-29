@@ -1,11 +1,9 @@
 package net.realdarkstudios.commons.misc;
 
-public interface IYamlStorage<T> {
+public interface IYamlStorage {
     void load();
 
     void save();
 
     void updateData();
-
-    T getInstance();
 }

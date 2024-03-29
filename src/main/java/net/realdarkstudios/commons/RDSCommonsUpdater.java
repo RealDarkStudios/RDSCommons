@@ -10,7 +10,10 @@ public class RDSCommonsUpdater extends AutoUpdater {
      * There is no need to create more than one auto updater, as this may have bad consequences.
      */
     public RDSCommonsUpdater() {
-        super(RDSCommons.getInstance(), "https://maven.digitalunderworlds.com/%ss/net/realdarkstudios/rdscommons/maven-metadata.xml", Parser.MAVEN_METADATA);
+        super(RDSCommons.getInstance(),
+                "https://maven.digitalunderworlds.com/%b%s/net/realdarkstudios/rdscommons/maven-metadata.xml",
+                "https://maven.digitalunderworlds.com/%b%s/net/realdarkstudios/rdscommons/%v%/rdscommons-%v%.jar",
+                Parser.MAVEN_METADATA);
     }
 
     @Override
