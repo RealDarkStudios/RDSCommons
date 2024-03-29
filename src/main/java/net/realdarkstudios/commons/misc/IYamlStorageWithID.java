@@ -2,7 +2,7 @@ package net.realdarkstudios.commons.misc;
 
 import java.util.List;
 
-public interface IYamlStorage<T> {
+public interface IYamlStorageWithID<T> {
     void load();
 
     void save();
@@ -13,11 +13,11 @@ public interface IYamlStorage<T> {
 
     boolean delete(T object);
 
-    T create(Object object);
+    T create(String id);
 
-    T get(Object object);
+    T get(String id);
 
-    T getOrCreate(Object object);
+    T getOrCreate(String id);
 
     List<T> getAllKnown();
 }

@@ -19,6 +19,13 @@ Changes:
 
 CHANGELOG:
 
+Snapshot 24w13f for 1.0.0.0
+Added:
+- IYamlStorageWithID
+
+Changes:
+- Added more methods to IYamlStorage and IYamlStorageWithID
+
 Snapshot(s) 24w12b to 24w13e for 1.0.0.0
 Added:
 - CommonsAPI
