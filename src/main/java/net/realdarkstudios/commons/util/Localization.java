@@ -2,27 +2,48 @@ package net.realdarkstudios.commons.util;
 
 import com.google.gson.JsonObject;
 import net.realdarkstudios.commons.CommonsAPI;
-import net.realdarkstudios.commons.RDSCommons;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.MissingFormatArgumentException;
 
 public class Localization {
+    private final Plugin plugin;
     private final LinkedHashMap<String, String> messages = new LinkedHashMap<>();
     private final RDSLogHelper logHelper;
+    private final String prefix;
 
     /**
-     * Creates a Localization based off of a {@link JsonObject}. Should never be invoked directly, instead use {@link LocalizationProvider#load(Plugin, java.util.Locale)}
+     * Creates a Localization based off of a {@link JsonObject}. Should never be invoked directly, instead use {@link LocalizationProvider#load(Plugin, Locale, String)}
      * @param json The JsonObject to load
      */
-    Localization(JsonObject json, RDSLogHelper helper) {
+    Localization(Plugin plugin, JsonObject json, RDSLogHelper helper, String prefix) {
+        this.plugin = plugin;
         for (String key: json.keySet()) {
             this.messages.put(key, json.get(key).toString());
         }
         this.logHelper = helper;
+        this.prefix = prefix;
     }
 
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    /**
+     * Gets the prefix for this localization
+     * @return The prefix
+     */
+    public String getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * Gets the {@link RDSLogHelper} instance for this localization
+     * @return The {@link RDSLogHelper}
+     */
     public RDSLogHelper getLogHelper() {
         return logHelper;
     }
@@ -64,5 +85,9 @@ public class Localization {
      */
     public boolean hasTranslation(String key) {
         return messages.containsKey(key);
+    }
+
+    public HashMap<String, String> getTranslations() {
+        return messages;
     }
 }

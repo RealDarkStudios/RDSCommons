@@ -19,6 +19,26 @@ Changes:
 
 CHANGELOG:
 
+Snapshot 24w15a for 1.0.0.0
+
+Added:
+- Localization#getPlugin
+- Localization#getPrefix
+- Localization#getTranslations
+- LocalizationProvider#getAllTranslations
+- LocalizedMessages#sendWithPrefix
+- LocalizedMessages#sendMessages
+- LocalizedMessages.Key#getPrefix
+- LocalizedMessages.Key#translateComponentWithPrefix
+- LocalizedMessages.Key#consoleWithPrefix
+- RDSLogHelper#tInfoPrefix
+- RDSLogHelper#tWarningPrefix
+
+Changes:
+- LocalizationProvider#load now takes in a String prefix parameter
+- Localization now takes in a Plugin plugin parameter
+- LocalizedMessages.StyleOptions#applyStyle now takes in a TextComponent instead of a String
+
 Snapshot 24w13h for 1.0.0.0
 Removed:
 - IYamlStorage

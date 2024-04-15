@@ -46,6 +46,10 @@ public class RDSLogHelper {
         info(key.console(formatArgs));
     }
 
+    public void tInfoPrefix(LocalizedMessages.Key key, Object... formatArgs) {
+        info(key.consoleWithPrefix(true, formatArgs));
+    }
+
     /**
      * Logs all the messages at the WARN level
      * @param messages The messages to log
@@ -66,5 +70,9 @@ public class RDSLogHelper {
      */
     public void tWarning(LocalizedMessages.Key key, Object... formatArgs) {
         warning(key.console(formatArgs));
+    }
+
+    public void tWarningPrefix(LocalizedMessages.Key key, Object... formatArgs) {
+        warning(key.consoleWithPrefix(true, formatArgs));
     }
 }

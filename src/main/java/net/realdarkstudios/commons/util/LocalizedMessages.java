@@ -18,7 +18,15 @@ public class LocalizedMessages {
      * @since 0.3.1.0
      */
     public static void send(CommandSender sender, Key key, Object... formatArgs) {
-         send(sender, key, key.styleOptions(), formatArgs);
+         sendMessage(sender, key, key.styleOptions(), false, formatArgs);
+    }
+
+    public static void sendWithPrefix(CommandSender sender, Key key, Object... formatArgs) {
+        sendMessage(sender, key, key.styleOptions(), true, formatArgs);
+    }
+
+    public static void sendMessages(CommandSender sender, String... messages) {
+        sender.sendMessage(messages);
     }
 
     public static void sendComponents(CommandSender sender, TextComponent... textComponents) {
@@ -35,8 +43,24 @@ public class LocalizedMessages {
      * @since 0.3.1.0
      */
     public static void send(CommandSender sender, Key key, StyleOptions styleOverride, Object... formatArgs) {
-        if (sender instanceof Player plr) plr.spigot().sendMessage(styleOverride.applyStyle(translation(key, MessageKeys.ERROR, formatArgs).getText()));
-        else sender.spigot().sendMessage(styleOverride.applyStyle(translationC(key, MessageKeys.ERROR, formatArgs)));
+        sendMessage(sender, key, styleOverride,false, formatArgs);
+    }
+
+    /**
+     * Sends the translated key with the format arguments
+     * @param sender The {@link CommandSender} to send the message to
+     * @param key The {@link Key} to send
+     * @param styleOverride The {@link StyleOptions} that will be applied instead of the key's
+     * @param formatArgs The format arguments
+     * @since 0.3.1.0
+     */
+    public static void sendWithPrefix(CommandSender sender, Key key, StyleOptions styleOverride, Object... formatArgs) {
+        sendMessage(sender, key, styleOverride,true, formatArgs);
+    }
+
+    private static void sendMessage(CommandSender sender, Key key, StyleOptions styleOverride, boolean withPrefix, Object... formatArgs) {
+        if (sender instanceof Player plr) plr.spigot().sendMessage(styleOverride.applyStyle(translation(key, MessageKeys.ERROR, withPrefix, formatArgs)));
+        else sender.spigot().sendMessage(styleOverride.applyStyle(new TextComponent(translationC(key, MessageKeys.ERROR, withPrefix, formatArgs))));
     }
 
     /**
@@ -47,12 +71,16 @@ public class LocalizedMessages {
      * @return The {@link TextComponent}
      * @since 0.3.1.0
      */
-    public static TextComponent translation(@NotNull LocalizedMessages.Key primaryKey, @NotNull LocalizedMessages.Key backupKey, Object... formatArgs) {
-        return primaryKey.localizationHasPath() ? primaryKey.translateComponent(formatArgs) : backupKey.equals(MessageKeys.TRANSLATION_MISSING) ? backupKey.translateComponent(formatArgs) : translation(backupKey, MessageKeys.TRANSLATION_MISSING, formatArgs);
+    public static TextComponent translation(@NotNull LocalizedMessages.Key primaryKey, @NotNull LocalizedMessages.Key backupKey, boolean withPrefix, Object... formatArgs) {
+        return primaryKey.localizationHasPath() ? primaryKey.translateComponentWithPrefix(withPrefix, formatArgs) : backupKey.equals(MessageKeys.TRANSLATION_MISSING) ?
+                backupKey.translateComponentWithPrefix(withPrefix, formatArgs) :
+                translation(backupKey, MessageKeys.TRANSLATION_MISSING, withPrefix, formatArgs);
     }
 
-    public static String translationC(@NotNull LocalizedMessages.Key primaryKey, @NotNull LocalizedMessages.Key backupKey, Object... formatArgs) {
-        return primaryKey.localizationHasPath() ? primaryKey.console(formatArgs) : backupKey.equals(MessageKeys.TRANSLATION_MISSING) ? backupKey.console(formatArgs) : translationC(backupKey, MessageKeys.TRANSLATION_MISSING, formatArgs);
+    public static String translationC(@NotNull LocalizedMessages.Key primaryKey, @NotNull LocalizedMessages.Key backupKey, boolean withPrefix, Object... formatArgs) {
+        return primaryKey.localizationHasPath() ? primaryKey.consoleWithPrefix(withPrefix, formatArgs) : backupKey.equals(MessageKeys.TRANSLATION_MISSING) ?
+                backupKey.consoleWithPrefix(withPrefix, formatArgs) :
+                translationC(backupKey, MessageKeys.TRANSLATION_MISSING, withPrefix, formatArgs);
     }
 
 
@@ -107,6 +135,11 @@ public class LocalizedMessages {
             return String.format(getRawMessage(), formatArgs);
         }
 
+        public TextComponent getPrefix() {
+            //localization.getPrefix() + "§7»§r"
+            return new TextComponent(localization.getPrefix() + "§7»§r");
+        }
+
         /**
          * Translates this {@link Key} into a TextComponent
          * @param formatArgs The format arguments
@@ -115,6 +148,20 @@ public class LocalizedMessages {
          */
         public TextComponent translateComponent(Object... formatArgs) {
             return translateComponentWithOtherStyle(styleOptions, formatArgs);
+        }
+
+        /**
+         * Translates this {@link Key} into a TextComponent
+         * @param formatArgs The format arguments
+         * @return The translated {@link TextComponent}
+         * @since 0.3.1.0
+         */
+        public TextComponent translateComponentWithPrefix(boolean withPrefix, Object... formatArgs) {
+            if (withPrefix) {
+                TextComponent component = getPrefix();
+                component.addExtra(translateComponent(formatArgs));
+                return component;
+            } else return translateComponent(formatArgs);
         }
 
         /**
@@ -135,7 +182,7 @@ public class LocalizedMessages {
          * @since 0.3.1.0
          */
         public TextComponent translateComponentWithOtherStyle(StyleOptions styleOptions, Object... formatArgs) {
-            return styleOptions.applyStyle(getMessage(formatArgs));
+            return styleOptions.applyStyle(new TextComponent(getMessage(formatArgs)));
         }
 
         /**
@@ -146,7 +193,7 @@ public class LocalizedMessages {
          * @since 0.3.1.0
          */
         public String translateWithOtherStyle(StyleOptions styleOptions, Object... formatArgs) {
-            return styleOptions.applyStyle(getMessage(formatArgs)).toLegacyText();
+            return styleOptions.applyStyle(new TextComponent(getMessage(formatArgs))).toLegacyText();
         }
 
         /**
@@ -157,6 +204,14 @@ public class LocalizedMessages {
          */
         public String console(Object... formatArgs) {
             return translateComponent(formatArgs).toLegacyText().replaceAll("(§[0-9a-fk-or])", "");
+        }
+
+        public String consoleWithPrefix(boolean withPrefix, Object... formatArgs) {
+            if (withPrefix) {
+                TextComponent component = getPrefix();
+                component.addExtra(translateComponent(styleOptions, formatArgs));
+                return component.toLegacyText().replaceAll("(§[0-9a-fk-or])", "");
+            } else return translateComponent(styleOptions, formatArgs).toLegacyText().replaceAll("(§[0-9a-fk-or])", "");
         }
 
         /**
@@ -234,8 +289,7 @@ public class LocalizedMessages {
             return this;
         }
 
-        public TextComponent applyStyle(String message) {
-            TextComponent component = new TextComponent(message);
+        public TextComponent applyStyle(TextComponent component) {
             component.setColor(this.color);
             component.setBold(this.bold);
             component.setItalic(this.italic);

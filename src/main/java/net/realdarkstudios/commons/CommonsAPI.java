@@ -6,7 +6,6 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Locale;
-import java.util.logging.Logger;
 
 public class CommonsAPI extends BaseAPI {
     private boolean hasInitialized = false;
@@ -76,9 +75,12 @@ public class CommonsAPI extends BaseAPI {
      * @since 1.0.0.0
      */
     public static void info(String... messages) {
-        for (String msg : messages) {
-            get().getAPILogger().info(msg);
+        if (!get().hasInitialized()) {
+            for (String msg : messages) {
+                RDSCommons.getInstance().getLogger().info(msg);
+            }
         }
+        else get().getAPILogger().info(messages);
     }
 
     /**
@@ -98,9 +100,12 @@ public class CommonsAPI extends BaseAPI {
      * @since 1.0.0.0
      */
     public static void warning(String... messages) {
-        for (String msg : messages) {
-            get().getAPILogger().warning(msg);
+        if (!get().hasInitialized()) {
+            for (String msg : messages) {
+                RDSCommons.getInstance().getLogger().warning(msg);
+            }
         }
+        else get().getAPILogger().warning(messages);
     }
 
     /**
@@ -118,7 +123,14 @@ public class CommonsAPI extends BaseAPI {
         if (!hasInitialized) {
             info("Registering localization '" + locale.toLanguageTag() + "' for plugin '" + plugin.getName() + "'");
         } else tInfo(MessageKeys.Api.REGISTERING_LOCALIZATION, locale.toLanguageTag(), plugin.getName());
-        return getLocalizationProvider().load(plugin, locale);
+        return localizationProvider.load(plugin, locale, plugin.getDescription().getPrefix());
+    }
+
+    public Localization registerLocalization(Plugin plugin, Locale locale, String prefix) {
+        if (!hasInitialized) {
+            info("Registering localization '" + locale.toLanguageTag() + "' for plugin '" + plugin.getName() + "'");
+        } else tInfo(MessageKeys.Api.REGISTERING_LOCALIZATION, locale.toLanguageTag(), plugin.getName());
+        return localizationProvider.load(plugin, locale, prefix);
     }
 
     /**
@@ -130,11 +142,13 @@ public class CommonsAPI extends BaseAPI {
         if (hasInitialized) return;
 
         localizationProvider = LocalizationProvider.getInstance();
-        apiLocalization = registerLocalization(RDSCommons.getInstance(), Locale.US);
-        updater = new RDSCommonsUpdater();
+        apiLocalization = registerLocalization(RDSCommons.getInstance(), Locale.US, "§6Commons");
         logHelper = apiLocalization.getLogHelper();
+        updater = new RDSCommonsUpdater();
 
         MessageKeys.init();
+
+        logHelper.tInfoPrefix(MessageKeys.Update.CHECKING, "RDSCOmmons");
 
         hasInitialized = true;
     }
