@@ -6,7 +6,7 @@
 
   <groupId>net.realdarkstudios</groupId>
   <artifactId>rdscommons</artifactId>
-  <version>1.0.0.0-snapshot-24w15a</version>
+  <version>1.0.0.0-snapshot-24w19a</version>
   <packaging>jar</packaging>
 
   <name>RDS Commons</name>

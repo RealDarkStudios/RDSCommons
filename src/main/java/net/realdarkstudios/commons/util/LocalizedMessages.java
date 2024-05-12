@@ -72,15 +72,21 @@ public class LocalizedMessages {
      * @since 0.3.1.0
      */
     public static TextComponent translation(@NotNull LocalizedMessages.Key primaryKey, @NotNull LocalizedMessages.Key backupKey, boolean withPrefix, Object... formatArgs) {
-        return primaryKey.localizationHasPath() ? primaryKey.translateComponentWithPrefix(withPrefix, formatArgs) : backupKey.equals(MessageKeys.TRANSLATION_MISSING) ?
-                backupKey.translateComponentWithPrefix(withPrefix, formatArgs) :
-                translation(backupKey, MessageKeys.TRANSLATION_MISSING, withPrefix, formatArgs);
+        return primaryKey.localizationHasPath() ? primaryKey.translateComponentWithPrefix(withPrefix, formatArgs) :
+                backupKey.equals(MessageKeys.ERROR) ?
+                    backupKey.translateComponentWithPrefix(withPrefix, primaryKey.getPath())
+                : backupKey.equals(MessageKeys.TRANSLATION_MISSING) ?
+                    backupKey.translateComponentWithPrefix(withPrefix, formatArgs) :
+                    translation(backupKey, MessageKeys.TRANSLATION_MISSING, withPrefix, formatArgs);
     }
 
     public static String translationC(@NotNull LocalizedMessages.Key primaryKey, @NotNull LocalizedMessages.Key backupKey, boolean withPrefix, Object... formatArgs) {
-        return primaryKey.localizationHasPath() ? primaryKey.consoleWithPrefix(withPrefix, formatArgs) : backupKey.equals(MessageKeys.TRANSLATION_MISSING) ?
-                backupKey.consoleWithPrefix(withPrefix, formatArgs) :
-                translationC(backupKey, MessageKeys.TRANSLATION_MISSING, withPrefix, formatArgs);
+        return primaryKey.localizationHasPath() ? primaryKey.consoleWithPrefix(withPrefix, formatArgs) :
+                backupKey.equals(MessageKeys.ERROR) ?
+                    backupKey.consoleWithPrefix(withPrefix, primaryKey.getPath())
+                : backupKey.equals(MessageKeys.TRANSLATION_MISSING) ?
+                    backupKey.consoleWithPrefix(withPrefix, backupKey.equals(MessageKeys.ERROR) ? new Object[]{primaryKey.getPath()} : formatArgs) :
+                    translationC(backupKey, MessageKeys.TRANSLATION_MISSING, withPrefix, formatArgs);
     }
 
 
@@ -132,12 +138,15 @@ public class LocalizedMessages {
          * @since 0.3.1.0
          */
         public String getMessage(Object... formatArgs) {
-            return String.format(getRawMessage(), formatArgs);
+            try {
+                return String.format(getRawMessage(), formatArgs);
+            } catch (Exception e) {
+                return getRawMessage();
+            }
         }
 
         public TextComponent getPrefix() {
-            //localization.getPrefix() + "§7»§r"
-            return new TextComponent(localization.getPrefix() + "§7»§r");
+            return new TextComponent(localization.getPrefix().endsWith(" ") ? localization.getPrefix() : localization.getPrefix() + " ");
         }
 
         /**
@@ -209,9 +218,9 @@ public class LocalizedMessages {
         public String consoleWithPrefix(boolean withPrefix, Object... formatArgs) {
             if (withPrefix) {
                 TextComponent component = getPrefix();
-                component.addExtra(translateComponent(styleOptions, formatArgs));
+                component.addExtra(translateComponent(formatArgs));
                 return component.toLegacyText().replaceAll("(§[0-9a-fk-or])", "");
-            } else return translateComponent(styleOptions, formatArgs).toLegacyText().replaceAll("(§[0-9a-fk-or])", "");
+            } else return translateComponent(formatArgs).toLegacyText().replaceAll("(§[0-9a-fk-or])", "");
         }
 
         /**

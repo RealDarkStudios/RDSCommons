@@ -148,7 +148,7 @@ public class CommonsAPI extends BaseAPI {
 
         MessageKeys.init();
 
-        logHelper.tInfoPrefix(MessageKeys.Update.CHECKING, "RDSCOmmons");
+        logHelper.tInfoPrefix(MessageKeys.Update.CHECKING, "RDSCommons", "TROLOLOLOLOLOLOLO");
 
         hasInitialized = true;
     }

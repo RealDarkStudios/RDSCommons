@@ -145,7 +145,7 @@ public class LocalizationProvider {
         for (Localization localization : pluginMap.values()) {
             Set<String> keys = localization.getTranslations().keySet();
             HashMap<String, Localization> fixedKeys = new HashMap<>();
-            keys.forEach(key -> fixedKeys.put(localization.getPlugin().getName() + ":" + key, localization));
+            keys.forEach(key -> fixedKeys.put(localization.getPlugin().getName().toLowerCase() + ":" + key, localization));
             ret.putAll(fixedKeys);
         }
 

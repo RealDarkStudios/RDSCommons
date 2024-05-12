@@ -2,7 +2,7 @@
   "api.loaded_localization": "Loaded localization: '%s' for plugin '%s' (%s)",
   "api.registering_localization": "Registering localization '%s' for plugin '%s'",
 
-  "error": "Error!",
+  "error": "Error! (key: %s)",
   "error.non_console_command": "This command must be executed by a player!",
   "error.incorrect_usage": "Incorrect Usage!",
   "error.incorrect_arg_count": "Incorrect number of arguments!",
