@@ -8,7 +8,7 @@ public abstract class BaseFieldType<T> extends FieldType<T> implements IYamlSeri
     private final T empty;
 
     public BaseFieldType(Class<T> clazz, T empty) {
-        super(clazz);
+        super(clazz, empty);
         this.empty = empty;
     }
 

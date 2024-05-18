@@ -19,6 +19,23 @@ Changes:
 
 CHANGELOG:
 
+Snapshot 24w20d for 1.0.0.0
+Some more fixes for DataObjects v2, mainly getting custom field types.
+
+Added:
+- Two DataObject#get methods for custom field types
+- DataObject#contains
+- DataObject#getLocalDateTime
+- FieldType#getEmpty
+- FieldType#isCustom
+
+Refactors:
+- DataObject#getField -> DataObject#get
+
+Changes:
+- FieldType constructor now takes in an empty/default object.
+- FieldType#custom now takes in an empty/default object.
+
 Snapshot 24w20c for 1.0.0.0
 Some more fixes for DataObjects v2, mainly with custom field types and setting them.
 

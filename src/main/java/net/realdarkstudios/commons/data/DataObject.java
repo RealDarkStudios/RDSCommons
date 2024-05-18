@@ -4,7 +4,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class DataObject {
     private YamlConfiguration yaml;
@@ -41,8 +43,12 @@ public abstract class DataObject {
         fieldType.apply(toSave).toYaml(yaml, plugin.getName().toLowerCase() + "." + path);
     }
 
-    public <T> T getField(Plugin plugin, String path, FieldType<T> fieldType) {
-        return yaml.getObject(plugin.getName().toLowerCase() + "." + path, fieldType.getTypeClass());
+    public <T, C extends BaseFieldType<T>> T get(Plugin plugin, String path, FieldType<C> fieldType) {
+        return fieldType.getEmpty().fromYaml(yaml, plugin.getName().toLowerCase() + "." + path);
+    }
+
+    public <C extends BaseFieldType<?>> C get(Plugin plugin, String path, Class<C> clazz) {
+        return yaml.getObject(plugin.getName().toLowerCase() + "." + path, clazz);
     }
 
     public int getInt(Plugin plugin, String path) {
@@ -71,6 +77,14 @@ public abstract class DataObject {
 
     public <T> List<T> getList(Plugin plugin, String path, Class<T> listType) {
         return (List<T>) yaml.getList(plugin.getName().toLowerCase() + "." + path);
+    }
+
+    public LocalDateTime getLocalDateTime(Plugin plugin, String path) {
+        return LocalDateTimeFieldType.NOW.fromYaml(yaml, plugin.getName() + "." + path);
+    }
+
+    public boolean contains(Plugin plugin, String path) {
+        return yaml.contains(plugin.getName().toLowerCase() + "." + path);
     }
 
     /* SAVING / LOADING */
