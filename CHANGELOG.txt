@@ -19,6 +19,10 @@ Changes:
 
 CHANGELOG:
 
+Snapshot 24w20f for 1.0.0.0
+Added:
+- DataObject#addField WITH a default option
+
 Snapshot 24w20e for 1.0.0.0
 Refactors:
 - FieldType#getEmpty -> FieldType#getDefault

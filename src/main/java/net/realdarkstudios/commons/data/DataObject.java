@@ -26,8 +26,12 @@ public abstract class DataObject {
 
     /* CUSTOM FIELDS */
 
-    public <T, O extends T> void addField(Plugin plugin, String path, FieldType<T> fieldType) {
+    public <T> void addField(Plugin plugin, String path, FieldType<T> fieldType) {
         yaml.set(plugin.getName().toLowerCase() + "." + path, fieldType.getDefault());
+    }
+
+    public <T, O extends T> void addField(Plugin plugin, String path, FieldType<T> fieldType, O def) {
+        yaml.set(plugin.getName().toLowerCase() + "." + path, def);
     }
 
     public <T, O extends T> void set(Plugin plugin, String path, O toSave) {
