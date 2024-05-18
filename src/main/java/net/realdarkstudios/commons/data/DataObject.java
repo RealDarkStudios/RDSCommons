@@ -33,6 +33,14 @@ public abstract class DataObject {
         yaml.set(plugin.getName().toLowerCase() + "." + path, toSave);
     }
 
+    public <C extends BaseFieldType<?>, O extends C> void set(Plugin plugin, String path, Class<C> fieldType, O toSave) {
+        fieldType.cast(toSave).toYaml(yaml, plugin.getName().toLowerCase() + "." + path);
+    }
+
+    public <C extends BaseFieldType<?>, O extends C> void set(Plugin plugin, String path, FieldType<C> fieldType, O toSave) {
+        fieldType.apply(toSave).toYaml(yaml, plugin.getName().toLowerCase() + "." + path);
+    }
+
     public <T> T getField(Plugin plugin, String path, FieldType<T> fieldType) {
         return yaml.getObject(plugin.getName().toLowerCase() + "." + path, fieldType.getTypeClass());
     }

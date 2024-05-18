@@ -19,6 +19,12 @@ Changes:
 
 CHANGELOG:
 
+Snapshot 24w20c for 1.0.0.0
+Some more fixes for DataObjects v2, mainly with custom field types and setting them.
+
+Added:
+- Two DataObject#set methods for custom field types (kind of forgot)
+
 Snapshot 24w20b for 1.0.0.0
 Some fixes for DataObjects v2
 
