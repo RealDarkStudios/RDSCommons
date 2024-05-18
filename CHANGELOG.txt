@@ -19,6 +19,13 @@ Changes:
 
 CHANGELOG:
 
+Snapshot 24w20e for 1.0.0.0
+Refactors:
+- FieldType#getEmpty -> FieldType#getDefault
+
+Changes:
+- Removed def param from DataObject#addField
+
 Snapshot 24w20d for 1.0.0.0
 Some more fixes for DataObjects v2, mainly getting custom field types.
 

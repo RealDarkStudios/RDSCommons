@@ -13,18 +13,18 @@ public class FieldType<T> {
     public static final FieldType<LocalDateTime> LOCAL_DATE_TIME = new FieldType<>(LocalDateTime.class, LocalDateTime.now());
 
     private final Class<T> clazz;
-    private final T empty;
+    private final T def;
     private final boolean isCustom;
 
-    FieldType(Class<T> clazz, T empty) {
+    FieldType(Class<T> clazz, T def) {
         this.clazz = clazz;
-        this.empty = empty;
+        this.def = def;
         this.isCustom = false;
     }
 
     private FieldType(Class<T> clazz, T empty, boolean isCustom) {
         this.clazz = clazz;
-        this.empty = empty;
+        this.def = empty;
         this.isCustom = isCustom;
     }
 
@@ -36,8 +36,8 @@ public class FieldType<T> {
         return clazz;
     }
 
-    public T getEmpty() {
-        return empty;
+    public T getDefault() {
+        return def;
     }
 
     public boolean isCustom() {

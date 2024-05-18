@@ -6,7 +6,6 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
 
 public abstract class DataObject {
     private YamlConfiguration yaml;
@@ -27,8 +26,8 @@ public abstract class DataObject {
 
     /* CUSTOM FIELDS */
 
-    public <T, O extends T> void addField(Plugin plugin, String path, FieldType<T> fieldType, O def) {
-        yaml.set(plugin.getName().toLowerCase() + "." + path, fieldType.apply(def));
+    public <T, O extends T> void addField(Plugin plugin, String path, FieldType<T> fieldType) {
+        yaml.set(plugin.getName().toLowerCase() + "." + path, fieldType.getDefault());
     }
 
     public <T, O extends T> void set(Plugin plugin, String path, O toSave) {
@@ -44,7 +43,7 @@ public abstract class DataObject {
     }
 
     public <T, C extends BaseFieldType<T>> T get(Plugin plugin, String path, FieldType<C> fieldType) {
-        return fieldType.getEmpty().fromYaml(yaml, plugin.getName().toLowerCase() + "." + path);
+        return fieldType.getDefault().fromYaml(yaml, plugin.getName().toLowerCase() + "." + path);
     }
 
     public <C extends BaseFieldType<?>> C get(Plugin plugin, String path, Class<C> clazz) {
