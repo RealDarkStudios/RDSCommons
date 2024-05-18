@@ -56,7 +56,7 @@ public final class RDSCommons extends JavaPlugin implements IRDSPlugin {
             }
 
             onlineOPPlayerList = opList;
-        }, 1L, 1L);
+        }, 1L, 2L);
     }
 
     public static RDSCommons getInstance() {

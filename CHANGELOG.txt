@@ -19,8 +19,53 @@ Changes:
 
 CHANGELOG:
 
-Snapshot 24w15a for 1.0.0.0
+Snapshot 24w20a for 1.0.0.0
+DataObjects v2 Phase 1. Also added Config
 
+Added:
+- Config
+- CommonsUtils
+- DataObject
+- FieldType
+- BaseFieldType
+- PlayerDataObject
+- PlayerStorage
+- CommonsAPI#CONFIG_DATA_VERSION
+- CommonsAPI#PLAYER_DATA_VERSION
+- CommonsAPI#getConfig
+- CommonsAPI#getPlayerStorage
+- CommonsAPI#getPlayerData
+- CommonsAPI#getAllKnownPlayers
+- CommonsAPI#getFilteredPlayers
+- CommonsAPI#getSortedPlayers
+- CommonsAPI#hasPlayerData
+- CommonsAPI#deletePlayerData
+- MessageKeys.Api.LOADED_PLAYERS
+- MessageKeys.Api.ATTEMPTING_UPDATE
+- MessageKeys.Api.NOT_ATTEMPTING_UPDATE
+- MessageKeys.Api.UPDATE_FAILED
+- MessageKeys.Api.UPDATE_SUCCEEDED
+- MessageKeys.Api.NEW_PLAYER_DATA
+- MessageKeys.Error.INCORRECT_KEY_PARAM_COUNT
+- MessageKeys.Error.PLAYER_LIST_EMPTY
+- MessageKeys.Error.CREATE_FILE
+- MessageKeys.Error.UPDATE_FILE
+- MessageKeys.Error.PARSE_UUID
+- LocalizedMessages.Key#getExpectedParamCount
+
+Changes:
+- This is the first "phase" of DataObjects v2. To begin, extend DataObject (or PlayerDataObject for player-related DOs) from your DO. Then, to add custom fields, use the addField method. If you have a custom serializable object, that class needs to extend BaseFieldType, then you can use FieldType#custom to use it.
+- Added CommonsUtils, a collection of utils (from Minecaching)
+- LocalizedMessage Keys now have an "expectedParamCount" field. This is a required field, so you will need to update all of your keys. This will hopefully help with debugging.
+
+Snapshot 24w19a for 1.0.0.0
+Minor bugfixes
+
+Changes:
+- LocalizationProvider#getAllTranslations keys will now be all lowercase
+- LocalizedMessages#translation and LocalizedMessages#translationC should now say the key name when Error is the backup key is returned
+
+Snapshot 24w15a for 1.0.0.0
 Added:
 - Localization#getPlugin
 - Localization#getPrefix

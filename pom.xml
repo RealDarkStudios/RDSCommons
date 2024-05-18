@@ -6,7 +6,7 @@
 
   <groupId>net.realdarkstudios</groupId>
   <artifactId>rdscommons</artifactId>
-  <version>1.0.0.0-snapshot-24w19a</version>
+  <version>1.0.0.0-snapshot-24w20a</version>
   <packaging>jar</packaging>
 
   <name>RDS Commons</name>
@@ -131,7 +131,7 @@
       <dependency>
           <groupId>org.spigotmc</groupId>
           <artifactId>spigot-api</artifactId>
-          <version>1.19-R0.1-SNAPSHOT</version>
+          <version>1.19.4-R0.1-SNAPSHOT</version>
           <scope>provided</scope>
       </dependency>
       <dependency>

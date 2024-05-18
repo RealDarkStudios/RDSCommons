@@ -15,7 +15,7 @@ public class LocalizedMessages {
      * @param sender The {@link CommandSender} to send the message to
      * @param key The {@link Key} to send
      * @param formatArgs The format arguments
-     * @since 0.3.1.0
+     * @since 1.0.0.0
      */
     public static void send(CommandSender sender, Key key, Object... formatArgs) {
          sendMessage(sender, key, key.styleOptions(), false, formatArgs);
@@ -40,7 +40,7 @@ public class LocalizedMessages {
      * @param key The {@link Key} to send
      * @param styleOverride The {@link StyleOptions} that will be applied instead of the key's
      * @param formatArgs The format arguments
-     * @since 0.3.1.0
+     * @since 1.0.0.0
      */
     public static void send(CommandSender sender, Key key, StyleOptions styleOverride, Object... formatArgs) {
         sendMessage(sender, key, styleOverride,false, formatArgs);
@@ -52,7 +52,7 @@ public class LocalizedMessages {
      * @param key The {@link Key} to send
      * @param styleOverride The {@link StyleOptions} that will be applied instead of the key's
      * @param formatArgs The format arguments
-     * @since 0.3.1.0
+     * @since 1.0.0.0
      */
     public static void sendWithPrefix(CommandSender sender, Key key, StyleOptions styleOverride, Object... formatArgs) {
         sendMessage(sender, key, styleOverride,true, formatArgs);
@@ -69,7 +69,7 @@ public class LocalizedMessages {
      * @param backupKey The backup {@link Key} (used if the primary one doesn't exist)
      * @param formatArgs The format arguments
      * @return The {@link TextComponent}
-     * @since 0.3.1.0
+     * @since 1.0.0.0
      */
     public static TextComponent translation(@NotNull LocalizedMessages.Key primaryKey, @NotNull LocalizedMessages.Key backupKey, boolean withPrefix, Object... formatArgs) {
         return primaryKey.localizationHasPath() ? primaryKey.translateComponentWithPrefix(withPrefix, formatArgs) :
@@ -95,15 +95,21 @@ public class LocalizedMessages {
      * @param localization The {@link Localization} this key will use
      * @param path The path of the key (such as "plugin.update.fail")
      * @param styleOptions The {@link StyleOptions} this key will use
-     * @since 0.3.1.0
+     * @param expectedParamCount The amount of expected parameters.
+     *       For example, for the string {@code "Minecraft Version %s"}, it would be 1, but for {@code "Minecraft Version %d.%d.%d} it would be 3.
+     * @since 1.0.0.0
      */
-    public record Key(Localization localization, String path, StyleOptions styleOptions) {
+    public record Key(Localization localization, String path, StyleOptions styleOptions, int expectedParamCount) {
         /**
          * Returns the localization that this key will use
          * @return The {@link Localization} of this key
          */
         public Localization getLocalization() {
             return localization;
+        }
+
+        public int getExpectedParamCount() {
+            return expectedParamCount;
         }
 
         /**
@@ -125,7 +131,7 @@ public class LocalizedMessages {
         /**
          * Gets the raw message (no formatting)
          * @return The raw message
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public String getRawMessage() {
             return localization.getTranslation(path);
@@ -135,7 +141,7 @@ public class LocalizedMessages {
          * Gets the message
          * @param formatArgs The format arguments
          * @return The message
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public String getMessage(Object... formatArgs) {
             try {
@@ -153,7 +159,7 @@ public class LocalizedMessages {
          * Translates this {@link Key} into a TextComponent
          * @param formatArgs The format arguments
          * @return The translated {@link TextComponent}
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public TextComponent translateComponent(Object... formatArgs) {
             return translateComponentWithOtherStyle(styleOptions, formatArgs);
@@ -163,7 +169,7 @@ public class LocalizedMessages {
          * Translates this {@link Key} into a TextComponent
          * @param formatArgs The format arguments
          * @return The translated {@link TextComponent}
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public TextComponent translateComponentWithPrefix(boolean withPrefix, Object... formatArgs) {
             if (withPrefix) {
@@ -177,7 +183,7 @@ public class LocalizedMessages {
          * Translates this {@link Key} into a string
          * @param formatArgs The format arguments
          * @return The translated string
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public String translate(Object... formatArgs) {
             return translateWithOtherStyle(styleOptions, formatArgs);
@@ -188,9 +194,15 @@ public class LocalizedMessages {
          * @param styleOptions The overriding {@link StyleOptions}
          * @param formatArgs The format arguments
          * @return The translated {@link TextComponent}
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public TextComponent translateComponentWithOtherStyle(StyleOptions styleOptions, Object... formatArgs) {
+            if (formatArgs.length != expectedParamCount) {
+                CommonsAPI.tWarning(MessageKeys.Error.INCORRECT_KEY_PARAM_COUNT, path, formatArgs.length, expectedParamCount);
+                if (formatArgs.length < expectedParamCount) {
+                    return styleOptions.applyStyle(new TextComponent(path));
+                }
+            }
             return styleOptions.applyStyle(new TextComponent(getMessage(formatArgs)));
         }
 
@@ -199,7 +211,7 @@ public class LocalizedMessages {
          * @param styleOptions The overriding {@link StyleOptions}
          * @param formatArgs The format arguments
          * @return The translated string
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public String translateWithOtherStyle(StyleOptions styleOptions, Object... formatArgs) {
             return styleOptions.applyStyle(new TextComponent(getMessage(formatArgs))).toLegacyText();
@@ -209,7 +221,7 @@ public class LocalizedMessages {
          * A dedicated version of {@link Key#translateComponent(Object...)} that removes all formatting codes from the output
          * @param formatArgs The format arguments
          * @return The translated string
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public String console(Object... formatArgs) {
             return translateComponent(formatArgs).toLegacyText().replaceAll("(§[0-9a-fk-or])", "");
@@ -226,7 +238,7 @@ public class LocalizedMessages {
         /**
          * Checks if the {@link Localization} has this path in it
          * @return {@code true} if the localization has the path, {@code false} otherwise
-         * @since 0.3.1.0
+         * @since 1.0.0.0
          */
         public boolean localizationHasPath() {
             return localization.hasTranslation(path);
