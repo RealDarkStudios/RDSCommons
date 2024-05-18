@@ -91,7 +91,6 @@ public class PlayerDataObject extends DataObject {
 
     public static PlayerDataObject get(UUID uuid) {
         File plrFile = new File(RDSCommons.getInstance().getDataFolder() + "/player/" + uuid + ".yml");
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(plrFile);
 
         if (!plrFile.exists()) {
             try {
@@ -107,6 +106,8 @@ public class PlayerDataObject extends DataObject {
                 CommonsAPI.tWarning(MessageKeys.Error.UPDATE_FILE, uuid + ".yml");
             }
         }
+
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(plrFile);
 
         return new PlayerDataObject(uuid, yaml, plrFile);
     }

@@ -15,6 +15,7 @@ public class Config {
     private YamlConfiguration yaml;
 
     Config() {
+        load();
     }
 
     public void load() {

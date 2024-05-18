@@ -1,5 +1,6 @@
 package net.realdarkstudios.commons.data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class FieldType<T> {
@@ -9,6 +10,7 @@ public class FieldType<T> {
     public static final FieldType<String> STRING = new FieldType<>(String.class);
     public static final FieldType<Boolean> BOOLEAN = new FieldType<>(Boolean.class);
     public static final FieldType<List> LIST = new FieldType<>(List.class);
+    public static final FieldType<LocalDateTime> LOCAL_DATE_TIME = new FieldType<>(LocalDateTime.class);
 
     private final Class<T> clazz;
     FieldType(Class<T> clazz) {

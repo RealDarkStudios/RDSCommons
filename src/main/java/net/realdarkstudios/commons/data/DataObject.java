@@ -26,39 +26,43 @@ public abstract class DataObject {
     /* CUSTOM FIELDS */
 
     public <T, O extends T> void addField(Plugin plugin, String path, FieldType<T> fieldType, O def) {
-        yaml.set(plugin.getName() + "." + path, fieldType.apply(def));
+        yaml.set(plugin.getName().toLowerCase() + "." + path, fieldType.apply(def));
+    }
+
+    public <T, O extends T> void set(Plugin plugin, String path, O toSave) {
+        yaml.set(plugin.getName().toLowerCase() + "." + path, toSave);
     }
 
     public <T> T getField(Plugin plugin, String path, FieldType<T> fieldType) {
-        return yaml.getObject(plugin.getName() + "." + path, fieldType.getTypeClass());
+        return yaml.getObject(plugin.getName().toLowerCase() + "." + path, fieldType.getTypeClass());
     }
 
     public int getInt(Plugin plugin, String path) {
-        return yaml.getInt(plugin.getName() + "." + path);
+        return yaml.getInt(plugin.getName().toLowerCase() + "." + path);
     }
 
     public double getDouble(Plugin plugin, String path) {
-        return yaml.getDouble(plugin.getName() + "." + path);
+        return yaml.getDouble(plugin.getName().toLowerCase() + "." + path);
     }
 
     public long getLong(Plugin plugin, String path) {
-        return yaml.getLong(plugin.getName() + "." + path);
+        return yaml.getLong(plugin.getName().toLowerCase() + "." + path);
     }
 
     public String getString(Plugin plugin, String path) {
-        return yaml.getString(plugin.getName() + "." + path);
+        return yaml.getString(plugin.getName().toLowerCase() + "." + path);
     }
 
     public boolean getBoolean(Plugin plugin, String path) {
-        return yaml.getBoolean(plugin.getName() + "." + path);
+        return yaml.getBoolean(plugin.getName().toLowerCase() + "." + path);
     }
 
     public List<?> getList(Plugin plugin, String path) {
-        return yaml.getList(plugin.getName() + "." + path);
+        return yaml.getList(plugin.getName().toLowerCase() + "." + path);
     }
 
     public <T> List<T> getList(Plugin plugin, String path, Class<T> listType) {
-        return (List<T>) yaml.getList(plugin.getName() + "." + path);
+        return (List<T>) yaml.getList(plugin.getName().toLowerCase() + "." + path);
     }
 
     /* SAVING / LOADING */
