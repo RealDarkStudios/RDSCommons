@@ -1,17 +1,6 @@
 package net.realdarkstudios.commons.data;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 public class FieldType<T> {
-    public static final FieldType<Integer> INTEGER = new FieldType<>(Integer.class, 0);
-    public static final FieldType<Double> DOUBLE = new FieldType<>(Double.class, 0.0D);
-    public static final FieldType<Long> LONG = new FieldType<>(Long.class, 0L);
-    public static final FieldType<String> STRING = new FieldType<>(String.class, "");
-    public static final FieldType<Boolean> BOOLEAN = new FieldType<>(Boolean.class, false);
-    public static final FieldType<List> LIST = new FieldType<>(List.class, List.of());
-    public static final FieldType<LocalDateTime> LOCAL_DATE_TIME = new FieldType<>(LocalDateTime.class, LocalDateTime.now());
-
     private final Class<T> clazz;
     private final T def;
     private final boolean isCustom;
@@ -28,7 +17,7 @@ public class FieldType<T> {
         this.isCustom = isCustom;
     }
 
-    public static <C extends BaseFieldType<?>> FieldType<C> custom(Class<C> clazz, C empty) {
+    public static <T ,C extends BaseFieldType<T>> FieldType<C> custom(Class<C> clazz, C empty) {
         return new FieldType<>(clazz, empty, true);
     }
 

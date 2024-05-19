@@ -19,6 +19,27 @@ Changes:
 
 CHANGELOG:
 
+Snapshot 24w20g for 1.0.0.0
+Added:
+- DataObject#saveFields
+- DataObject#updateFields
+- FieldTypes
+- LocalDateTimeFT#of
+- LocalDateTimeFT#getLocalDateTime
+- LocalDateTimeFT#now
+
+Removed:
+- DataObject#<C,O>set(Plugin, String, Class<C>, O)
+- DataObject#<C>get(Plugin, String, Class<C>)
+- LocalDateTimeFT#NOW
+
+Refactors:
+- LocalDateTimeFieldType -> LocalDateTimeFT
+- FieldType#XXXXXX -> FieldTypes#XXXXXX
+
+Changes:
+- Changed period to an exclamation point in error.incorrect_param_key_count because the output would look like "update.download_disabled." (now it looks like "update.download_disabled!")
+
 Snapshot 24w20f for 1.0.0.0
 Added:
 - DataObject#addField WITH a default option

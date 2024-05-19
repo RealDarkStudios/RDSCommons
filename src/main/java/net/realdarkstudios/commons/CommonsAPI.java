@@ -287,6 +287,7 @@ public class CommonsAPI extends BaseAPI {
         logHelper = apiLocalization.getLogHelper();
         updater = new RDSCommonsUpdater();
 
+        playerStorage.load();
         MessageKeys.init();
 
         hasInitialized = true;

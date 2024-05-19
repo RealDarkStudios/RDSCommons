@@ -78,7 +78,7 @@ public class PlayerDataObject extends DataObject {
     }
 
     @Override
-    protected void update() {
+    protected void updateFields() {
         try {
             if (uniqueID.equals(CommonsUtils.EMPTY_UUID)) {
                 this.skullItemStack = new ItemStack(Material.PLAYER_HEAD);
@@ -87,6 +87,10 @@ public class PlayerDataObject extends DataObject {
         } catch (ProfileFetchException e) {
             this.skullItemStack = new ItemStack(Material.PLAYER_HEAD);
         }
+    }
+
+    @Override
+    protected void saveFields() {
     }
 
     public static PlayerDataObject get(UUID uuid) {

@@ -31,15 +31,11 @@ public abstract class DataObject {
     }
 
     public <T, O extends T> void addField(Plugin plugin, String path, FieldType<T> fieldType, O def) {
-        yaml.set(plugin.getName().toLowerCase() + "." + path, def);
+        yaml.set(plugin.getName().toLowerCase() + "." + path, fieldType.apply(def));
     }
 
     public <T, O extends T> void set(Plugin plugin, String path, O toSave) {
         yaml.set(plugin.getName().toLowerCase() + "." + path, toSave);
-    }
-
-    public <C extends BaseFieldType<?>, O extends C> void set(Plugin plugin, String path, Class<C> fieldType, O toSave) {
-        fieldType.cast(toSave).toYaml(yaml, plugin.getName().toLowerCase() + "." + path);
     }
 
     public <C extends BaseFieldType<?>, O extends C> void set(Plugin plugin, String path, FieldType<C> fieldType, O toSave) {
@@ -48,10 +44,6 @@ public abstract class DataObject {
 
     public <T, C extends BaseFieldType<T>> T get(Plugin plugin, String path, FieldType<C> fieldType) {
         return fieldType.getDefault().fromYaml(yaml, plugin.getName().toLowerCase() + "." + path);
-    }
-
-    public <C extends BaseFieldType<?>> C get(Plugin plugin, String path, Class<C> clazz) {
-        return yaml.getObject(plugin.getName().toLowerCase() + "." + path, clazz);
     }
 
     public int getInt(Plugin plugin, String path) {
@@ -83,7 +75,7 @@ public abstract class DataObject {
     }
 
     public LocalDateTime getLocalDateTime(Plugin plugin, String path) {
-        return LocalDateTimeFieldType.NOW.fromYaml(yaml, plugin.getName() + "." + path);
+        return LocalDateTimeFT.now().fromYaml(yaml, plugin.getName() + "." + path);
     }
 
     public boolean contains(Plugin plugin, String path) {
@@ -92,12 +84,15 @@ public abstract class DataObject {
 
     /* SAVING / LOADING */
 
-    protected abstract void update();
+    protected abstract void updateFields();
     protected abstract void preload();
+    protected abstract void saveFields();
 
     public void saveData() {
+        saveFields();
+
         save();
-        update();
+        updateFields();
     }
 
     public void load() {
@@ -112,7 +107,7 @@ public abstract class DataObject {
             e.printStackTrace();
         }
 
-        update();
+        updateFields();
         save();
     }
 
@@ -126,7 +121,7 @@ public abstract class DataObject {
 
     public void updateData() {
         try {
-            update();
+            updateFields();
 
             preload();
 

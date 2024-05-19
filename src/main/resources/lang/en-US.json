@@ -12,7 +12,7 @@
   "error.non_console_command": "This command must be executed by a player!",
   "error.incorrect_usage": "Incorrect Usage!",
   "error.incorrect_arg_count": "Incorrect number of arguments!",
-  "error.incorrect_key_param_count": "Incorrect number of parameters for key %s. Found %d (expected %d)!",
+  "error.incorrect_key_param_count": "Incorrect number of parameters for key %s! Found %d (expected %d)!",
   "error.fail_parse_number": "Failed to parse '%s' as a number",
   "error.translation_missing": "Missing Translation: %s",
   "error.translation_format_arg_missing": "Missing Format Argument! Returning with no substitutions...",
